@@ -1,4 +1,4 @@
-export default function Dashboard({ user, history, onNewScan, onLogout }) {
+export default function Dashboard({ user, history, loading, onNewScan, onLogout }) {
   const total = history.length;
   const phishing = history.filter((h) => h.verdict === "phishing").length;
   const safe = total - phishing;
@@ -26,6 +26,7 @@ export default function Dashboard({ user, history, onNewScan, onLogout }) {
         </div>
       </div>
 
+      {/* Stats */}
       <div style={{ display: "grid", gridTemplateColumns: "repeat(3, 1fr)", gap: 12, marginBottom: "1.5rem" }}>
         {[
           { label: "Total scans", value: total, color: "var(--text)" },
@@ -44,7 +45,7 @@ export default function Dashboard({ user, history, onNewScan, onLogout }) {
         ))}
       </div>
 
-      <div className="card" style={{ marginBottom: "1rem" }}>
+      <div className="card">
         <div style={{ display: "flex", alignItems: "center", justifyContent: "space-between", marginBottom: "1.25rem" }}>
           <h2 style={{ fontSize: 15, fontWeight: 600 }}>Recent scans</h2>
           <button className="btn btn-primary" style={{ padding: "8px 18px", fontSize: 13 }} onClick={onNewScan}>
@@ -52,7 +53,17 @@ export default function Dashboard({ user, history, onNewScan, onLogout }) {
           </button>
         </div>
 
-        {history.length === 0 ? (
+        {loading ? (
+          <div style={{ textAlign: "center", padding: "2.5rem 0", color: "var(--muted)", fontSize: 14 }}>
+            <span style={{
+              width: 20, height: 20, border: "2px solid var(--border)",
+              borderTopColor: "var(--accent)", borderRadius: "50%",
+              animation: "spin 0.7s linear infinite", display: "inline-block",
+              marginBottom: 10
+            }}/>
+            <div>Loading your scan history...</div>
+          </div>
+        ) : history.length === 0 ? (
           <div style={{ textAlign: "center", padding: "2.5rem 0", color: "var(--muted)", fontSize: 14 }}>
             No scans yet. Click "New scan" to analyse an email.
           </div>
@@ -76,14 +87,22 @@ export default function Dashboard({ user, history, onNewScan, onLogout }) {
                     {Math.round(item.confidence * 100)}% confidence
                   </span>
                 </div>
-                <span style={{ fontSize: 12, color: "var(--muted)" }}>
-                  {item.indicators?.length || 0} indicator{item.indicators?.length !== 1 ? "s" : ""}
-                </span>
+                <div style={{ display: "flex", alignItems: "center", gap: 12 }}>
+                  <span style={{ fontSize: 12, color: "var(--muted)" }}>
+                    {item.indicators?.length || 0} indicator{item.indicators?.length !== 1 ? "s" : ""}
+                  </span>
+                  {item.scanned_at && (
+                    <span style={{ fontSize: 12, color: "var(--muted)" }}>
+                      {new Date(item.scanned_at).toLocaleDateString()}
+                    </span>
+                  )}
+                </div>
               </div>
             ))}
           </div>
         )}
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

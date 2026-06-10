@@ -1,18 +1,46 @@
 import { useState } from "react";
+import { loginUser, registerUser } from "../api";
 
 export default function LoginPage({ onLogin }) {
+  const [isRegister, setIsRegister] = useState(false);
   const [username, setUsername] = useState("");
   const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [error, setError] = useState("");
+  const [loading, setLoading] = useState(false);
 
-  function handleSubmit(e) {
+  async function handleSubmit(e) {
     e.preventDefault();
+    setError("");
+
     if (!username.trim() || !password.trim()) {
       setError("Please enter both username and password.");
       return;
     }
-    setError("");
-    onLogin(username.trim());
+
+    if (isRegister && password !== confirmPassword) {
+      setError("Passwords do not match.");
+      return;
+    }
+
+    if (isRegister && password.length < 6) {
+      setError("Password must be at least 6 characters.");
+      return;
+    }
+
+    setLoading(true);
+    try {
+      if (isRegister) {
+        await registerUser(username.trim(), password.trim());
+      } else {
+        await loginUser(username.trim(), password.trim());
+      }
+      onLogin(username.trim());
+    } catch (err) {
+      setError(err.message);
+    } finally {
+      setLoading(false);
+    }
   }
 
   return (
@@ -31,6 +59,29 @@ export default function LoginPage({ onLogin }) {
         <p style={{ color: "var(--muted)", fontSize: 14 }}>SOC phishing detection tool</p>
       </div>
 
+      {/* Toggle tabs */}
+      <div style={{
+        display: "flex", background: "var(--bg3)",
+        borderRadius: 10, padding: 4, marginBottom: 16,
+        border: "1px solid var(--border)"
+      }}>
+        {["Login", "Register"].map((tab) => (
+          <button
+            key={tab}
+            onClick={() => { setIsRegister(tab === "Register"); setError(""); }}
+            style={{
+              flex: 1, padding: "8px", border: "none", borderRadius: 8,
+              fontSize: 14, fontWeight: 500, cursor: "pointer",
+              background: (tab === "Register") === isRegister ? "var(--bg2)" : "transparent",
+              color: (tab === "Register") === isRegister ? "var(--text)" : "var(--muted)",
+              transition: "all 0.15s"
+            }}
+          >
+            {tab}
+          </button>
+        ))}
+      </div>
+
       <div className="card">
         <form onSubmit={handleSubmit}>
           <div style={{ marginBottom: 16 }}>
@@ -43,7 +94,7 @@ export default function LoginPage({ onLogin }) {
               autoFocus
             />
           </div>
-          <div style={{ marginBottom: 20 }}>
+          <div style={{ marginBottom: isRegister ? 16 : 20 }}>
             <label className="label">Password</label>
             <input
               type="password"
@@ -52,6 +103,18 @@ export default function LoginPage({ onLogin }) {
               onChange={(e) => setPassword(e.target.value)}
             />
           </div>
+
+          {isRegister && (
+            <div style={{ marginBottom: 20 }}>
+              <label className="label">Confirm Password</label>
+              <input
+                type="password"
+                placeholder="Re-enter your password"
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+              />
+            </div>
+          )}
 
           {error && (
             <div style={{
@@ -63,11 +126,26 @@ export default function LoginPage({ onLogin }) {
             </div>
           )}
 
-          <button type="submit" className="btn btn-primary" style={{ width: "100%" }}>
-            Sign in
+          <button
+            type="submit"
+            className="btn btn-primary"
+            style={{ width: "100%" }}
+            disabled={loading}
+          >
+            {loading ? (
+              <span style={{ display: "flex", alignItems: "center", gap: 8 }}>
+                <span style={{
+                  width: 14, height: 14, border: "2px solid rgba(255,255,255,0.3)",
+                  borderTopColor: "#fff", borderRadius: "50%",
+                  animation: "spin 0.7s linear infinite", display: "inline-block"
+                }}/>
+                {isRegister ? "Creating account..." : "Signing in..."}
+              </span>
+            ) : (isRegister ? "Create account" : "Sign in")}
           </button>
         </form>
       </div>
+      <style>{`@keyframes spin { to { transform: rotate(360deg); } }`}</style>
     </div>
   );
 }

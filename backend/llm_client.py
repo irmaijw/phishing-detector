@@ -28,12 +28,15 @@ import time
 
 import requests
 
+from dotenv import load_dotenv
+load_dotenv()
+
 # ---------------- Configuration ----------------
 GLOWS_URL = os.environ.get(
     "GLOWS_URL",
-    "http://localhost:11434/api/chat",
+    "https://tw-05.access.glows.ai:25511/api/chat",
 )
-GLOWS_TOKEN = os.environ.get("GLOWS_TOKEN", "")
+GLOWS_TOKEN = os.environ.get("GLOWS_TOKEN", "tuUygJ2r1K")
 MODEL_NAME = os.environ.get("MODEL_NAME", "gpt-oss:20b")
 REQUEST_TIMEOUT = 180
 

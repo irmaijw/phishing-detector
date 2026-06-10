@@ -1,6 +1,6 @@
 import { useState } from "react";
 
-const API_URL = import.meta.env.VITE_API_URL || "http://localhost:11434";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5000";
 
 export default function EmailInput({ onResult, onBack }) {
   const [body, setBody] = useState("");
@@ -39,7 +39,7 @@ export default function EmailInput({ onResult, onBack }) {
 
       if (!res.ok) throw new Error(`Server error: ${res.status}`);
       const data = await res.json();
-      onResult(data);
+      onResult(data, body.trim());
     } catch (err) {
       setError(`Could not reach the backend: ${err.message}. Make sure your friend's server is running.`);
     } finally {
