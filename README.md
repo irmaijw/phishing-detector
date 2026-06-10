@@ -24,8 +24,9 @@ PhishGuard is an AI-powered phishing detection tool built for SOC analysts. This
 - LLM Detection Engine: 黃愛弟 & 施發梅
 - Data to train: 陳友平
 
-🔗 GitHub Repository:
-https://github.com/irmaijw/phishing-detector
+🔗 GitHub Repository Demo:
+https://youtu.be/XFeo4iZXgag
+
 
 #phishing #cybersecurity #AI #React #Python #SOC #LLM #MachineLearning #WebDevelopment
 
